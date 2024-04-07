@@ -3,7 +3,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "juan-gon"
 
   config.vm.provider "virtualbox" do |v|
-      v.memory    = "2048"
+      v.memory    = "4096"
       v.cpus      = "2"
       # v.customize ["modifyvm", :id, "--basefolder", "/sgoinfre/students/juan-gon/vm-ds"]
 
