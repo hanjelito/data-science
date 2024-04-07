@@ -1,30 +1,35 @@
 #!/bin/bash
 
-# Conexión a la base de datos PostgreSQL
+DB_HOST="localhost"
+DB_USER="juan-gon"
+PGPASSWORD='mysecretpassword'
 DATABASE="piscineds"
-DATABASE_NEW="customer"
-USER="username"
-PASSWORD="password"
+DATA_FIND='data_20'
+DATABASE_NEW="customers"
+
+export PGPASSWORD
 
 
-tablas=$(sudo -u postgres psql -d "$DATABASE" -c "\dt" | grep "data_20" | awk '{print $3}')
+table=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DATABASE" -c "\dt" | grep "$DATA_FIND" | awk '{print $3}')
 
-# Identificar la estructura de las tablas para determinar los campos
-for tabla in $tablas; do
-    echo "Estructura de la tabla $tabla:"
-    sudo -u postgres psql -d "$DATABASE" -c "\d $tabla"
+first_table=$(echo $table | cut -d' ' -f1)
+
+psql -h "$DB_HOST" -U "$DB_USER" -q -d "$DATABASE" <<-EOSQL
+DO
+\$do\$
+BEGIN
+    IF NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '$DATABASE_NEW') THEN
+        EXECUTE 'CREATE TABLE $DATABASE_NEW AS SELECT * FROM ' || quote_ident('$first_table') || ' WHERE FALSE';
+    END IF;
+END
+\$do\$
+EOSQL
+
+for tabla in $table; do
+    echo "Into db $tabla in '$DATABASE_NEW'..."
+    psql -h "$DB_HOST" -U "$DB_USER" -q -d "$DATABASE" <<-EOSQL
+        INSERT INTO $DATABASE_NEW SELECT * FROM $tabla;
+EOSQL
 done
 
-# Crear la tabla 'customer' si no existe con los campos identificados
-# Debes definir esta estructura manualmente basada en la salida del paso anterior
-sudo -u postgres psql -d "$DATABASE" <<-EOSQL
-    CREATE TABLE IF NOT EXISTS customer (
-        event_time TIMESTAMP,
-        product_id INTEGER,
-        price FLOAT,
-        user_id BIGINT,
-        user_session UUID,
-        PRIMARY KEY (event_time, product_id, user_id)  -- Ajusta según la lógica de tus datos
-    );
-EOSQL
-echo "Proceso completado."
+echo "Finish process"
