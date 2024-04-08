@@ -13,13 +13,47 @@ def create_new_table(table_name):
     start_time = time.time()
 
     with engine.connect() as conn:
+        # sql_command = f"""
+        # DROP TABLE IF EXISTS {table_name};
+        # CREATE TABLE tester AS
+        # SELECT DISTINCT ON (event_type, product_id, price, user_id, user_session)
+        # event_time, event_type, product_id, price, user_id, user_session
+        # FROM customers
+        # ORDER BY event_type, product_id, price, user_id, user_session, event_time;
+        # """
         sql_command = f"""
         DROP TABLE IF EXISTS {table_name};
-        CREATE TABLE tester AS
-        SELECT DISTINCT ON (event_type, product_id, price, user_id, user_session)
-        event_time, event_type, product_id, price, user_id, user_session
-        FROM customers
-        ORDER BY event_type, product_id, price, user_id, user_session, event_time;
+        CREATE TABLE {table_name} AS
+        WITH RankedEvents AS (
+            SELECT 
+                event_time, 
+                event_type, 
+                product_id, 
+                price, 
+                user_id, 
+                user_session,
+                ROW_NUMBER() OVER (
+                    PARTITION BY 
+                        event_type, 
+                        product_id, 
+                        user_id, 
+                        user_session, 
+                        DATE_TRUNC('minute', event_time)
+                ) AS rn
+            FROM 
+                customers
+        )
+        SELECT 
+            event_time, 
+            event_type, 
+            product_id, 
+            price, 
+            user_id, 
+            user_session
+        FROM 
+            RankedEvents
+        WHERE 
+            rn = 1;
         """
         result = conn.execute(text(sql_command))
         conn.commit()
@@ -47,7 +81,7 @@ def rename_table():
 
 def main():
     create_new_table("tester")
-    #rename_table()
+    rename_table()
 
 
 if __name__ == "__main__":

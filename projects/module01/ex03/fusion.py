@@ -70,12 +70,12 @@ def fusion_items():
  
 def main():
 	create_new_colums()
-	#  remove_colums()
+	# remove_colums()
 	fusion_items()
   
-
 if __name__ == "__main__":
 	main()
  
 # select * from customers c where category_id = 1487580005268456192 limit 10;
 # select  * from  customers c where category_code = 'furniture.bathroom.bath' limit 10;
+# 13647049

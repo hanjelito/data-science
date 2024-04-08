@@ -12,7 +12,8 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./projects", "/vagrant/projects"
   config.vm.synced_folder "./scripts", "/vagrant/scripts"
 
-  config.vm.network "forwarded_port", guest: 5432, host: 5432
+  config.vm.network "forwarded_port", guest: 5432, host: 5433
+  # config.vm.network "forwarded_port", guest: 5432, host: 5432
 
 
   config.vm.provision "shell", privileged: false, path: "scripts/python_setup.sh"
@@ -22,3 +23,6 @@ Vagrant.configure("2") do |config|
     python_env.vm.network "private_network", type: "dhcp"
   end
 end
+
+
+# ps aux | grep 'VirtualBox'

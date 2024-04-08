@@ -33,3 +33,6 @@ EOSQL
 done
 
 echo "Finish process"
+
+
+# sudo systemctl restart postgresql
