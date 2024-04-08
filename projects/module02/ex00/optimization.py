@@ -103,7 +103,22 @@ def create_index_table_partition(tables_dates, colummns)->any:
 		print(f"Error: {e}")
 		return None
 	
-
+def rename_table():
+    """
+    Renames the table 'new_customers' to 'customers'
+    """
+    start_time = time.time()
+    
+    with engine.connect() as conn:
+        sql_command = f"""
+        DROP TABLE IF EXISTS customers;
+        ALTER TABLE new_customers RENAME TO customers;
+        """
+        result = conn.execute(text(sql_command))
+        conn.commit()
+        print(f"Generated {result.rowcount} rows")
+    end_time = time.time()
+    print(f"Elapsed time: {end_time - start_time:.2f} seconds")
 
 def main():
 	next_step = create_partitioned_table("new_customers")
@@ -118,6 +133,7 @@ def main():
 		creta_multiple_partitions("new_customers", tables_dates)
 		insert_data_partitioned_table("customers", "new_customers")
 		create_index_table_partition(tables_dates, "event_time")
+	# rename_table()
  
 
 if __name__ == "__main__":
