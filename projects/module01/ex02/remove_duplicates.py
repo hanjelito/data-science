@@ -8,67 +8,52 @@ def connect():
     engine = create_engine(db_url)
     return engine
 engine = connect()
-
-def count_total(table):
-    with engine.connect() as conn:
-        query = text(f"""
-        SELECT COUNT(*)
-        FROM {table}
-        """)
-        result = conn.execute(query)
-        return result.scalar()
     
-def create_new_table_day(table_name, start_datetime, end_datetime):
+def create_new_table(table_name):
     start_time = time.time()
 
     with engine.connect() as conn:
-        # Se debe definir el nombre de la tabla en el SQL directamente ya que los nombres de tabla no pueden ser parámetros
         sql_command = f"""
-        CREATE TABLE IF NOT EXISTS {table_name} AS
-        SELECT *
-        FROM customers c
-        WHERE c.event_time >= :start AND c.event_time <= :end
+        DROP TABLE IF EXISTS {table_name};
+        CREATE TABLE tester AS
+        SELECT DISTINCT ON (event_type, product_id, price, user_id, user_session)
+        event_time, event_type, product_id, price, user_id, user_session
+        FROM customers
+        ORDER BY event_type, product_id, price, user_id, user_session, event_time;
         """
-        # Ejecuta la consulta pasando 'start' y 'end' como parámetros para evitar inyección SQL
-        result = conn.execute(text(sql_command), {'start': start_datetime, 'end': end_datetime})
-        conn.commit()  # Confirma los cambios en la base de datos
+        result = conn.execute(text(sql_command))
+        conn.commit()
 
-        print(f"Generated {result.rowcount} rows")  # Imprime la cantidad de filas generadas
-
+        print(f"Generated {result.rowcount} rows")
     end_time = time.time()
     print(f"Elapsed time: {end_time - start_time:.2f} seconds") 
 
-def month_date(table_name, start_datetime, end_datetime):
-    print(f"Creando tabla para {table_name} desde {start_datetime} hasta {end_datetime}")
-    # create_new_table_day("customers", "2022-10-01 00:00:00", "2022-10-01 23:59:59")
-    create_new_table_day(table_name, start_datetime, end_datetime)
-    # Aquí iría la lógica para crear la tabla
+def rename_table():
+    """
+    Renames the table 'tester' to 'customers'
+    """
+    start_time = time.time()
+    
+    with engine.connect() as conn:
+        sql_command = f"""
+        DROP TABLE IF EXISTS customers;
+        ALTER TABLE tester RENAME TO customers;
+        """
+        result = conn.execute(text(sql_command))
+        conn.commit()
+        print(f"Generated {result.rowcount} rows")
+    end_time = time.time()
+    print(f"Elapsed time: {end_time - start_time:.2f} seconds")
 
 def main():
-    # Define el rango de fechas
-    fecha_inicio = datetime.datetime(2022, 10, 1)
-    fecha_fin = datetime.datetime(2022, 11, 30)
-
-    # Itera sobre cada mes en el rango
-    mes_actual = fecha_inicio
-    cont = 0
-    while mes_actual <= fecha_fin:
-        inicio_mes = mes_actual
-
-        año_siguiente = inicio_mes.year + (inicio_mes.month // 12)
-        mes_siguiente = inicio_mes.month % 12 + 1
-        fin_mes = datetime.datetime(año_siguiente, mes_siguiente, 1) - datetime.timedelta(seconds=1)
-
-        
-        inicio_str = inicio_mes.strftime("%Y-%m-%d %H:%M:%S")
-        fin_str = fin_mes.strftime("%Y-%m-%d %H:%M:%S")
-        
-        month_date(f'customers{cont}', inicio_str, fin_str)
-        cont += 1
-
-        
-        mes_actual = fin_mes + datetime.timedelta(seconds=1)
+    create_new_table("tester")
+    #rename_table()
 
 
 if __name__ == "__main__":
     main()
+    
+# -- select * from tester c where user_session = '49e8d843-adf3-428b-a2c3-fe8bc6a307c9'
+# -- select * from tester c where user_session = '49e8d843-adf3-428b-a2c3-fe8bc6a307c9' and product_id = 5779403
+# -- select * from customers c where user_session = '49e8d843-adf3-428b-a2c3-fe8bc6a307c9' and product_id = 5779403
+# -- select * from customers c where event_time = '2022-10-01 00:00:32'
