@@ -121,7 +121,6 @@ def rename_table():
     print(f"Elapsed time: {end_time - start_time:.2f} seconds")
 
 def main():
-	next_step = create_partitioned_table("new_customers")
 	tables_dates = [
 		("new_customers_2022_oct", "2022-10-01", "2022-11-01"),
 		("new_customers_2022_nov", "2022-11-01", "2022-12-01"),
@@ -129,6 +128,8 @@ def main():
 		("new_customers_2023_jan", "2023-01-01", "2023-02-01"),
 		("new_customers_2023_feb", "2023-02-01", "2023-03-01")
 	]
+ 
+	next_step = create_partitioned_table("new_customers")
 	if next_step != None:
 		creta_multiple_partitions("new_customers", tables_dates)
 		insert_data_partitioned_table("customers", "new_customers")
