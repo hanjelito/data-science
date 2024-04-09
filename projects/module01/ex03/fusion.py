@@ -59,13 +59,17 @@ def fusion_items():
 			category_code = i.category_code,
 			brand = i.brand
 		FROM item i
-		WHERE c.product_id = i.product_id;
+		WHERE c.product_id = i.product_id
+			AND i.category_id IS NOT NULL
+        	AND i.category_code IS NOT NULL
+        	AND i.brand IS NOT NULL;
 		"""
 		result = conn.execute(text(sql_command))
 		conn.commit()
 		print(f"Generated {result.rowcount} rows")
 	end_time = time.time()
 	print(f"Elapsed time: {end_time - start_time:.2f} seconds")
+
 
  
 def main():
