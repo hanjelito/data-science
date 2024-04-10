@@ -1,3 +1,5 @@
+import pandas as pd
+import datetime
 import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -14,107 +16,79 @@ except SQLAlchemyError as e:
 	print(f"Error: {e}")
     
 
-def create_partitioned_table(table_name)->any:
-	try:
-		start_time = time.time()
-		assert engine.connect(), "Error: Could not connect to the database"
-		print(f"Creating partitioned table {table_name}...")
-		with engine.connect() as conn:
-			assert not engine.dialect.has_table(conn, table_name), f"Error: Table {table_name} already exists."
-			sql_command = f"""
-			CREATE TABLE {table_name} (
-				event_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-				event_type TEXT,
-				product_id INTEGER,
-				price DOUBLE PRECISION,
-				user_id BIGINT,
-				user_session UUID,
-				category_id BIGINT,
-				category_code TEXT,
-				brand TEXT
-			) PARTITION BY RANGE (event_time);	
-			"""
-			conn.execute(text(sql_command))
-			conn.commit()
-		end_time = time.time()
-		print(f"Elapsed time: {end_time - start_time:.2f} seconds")				
-		print(f"Table {table_name} created successfully")
-		return True
-	except AssertionError as e:
-		print(f"Error: {e}")
-		return None
-
-def partition_table_month(name_table, name_partitioned_table, start_date, end_date):
+def columnes_count(table_name: str, start_date: str, end_date: str, event_type_filter: str) -> any:
     try:
         start_time = time.time()
+        assert engine.connect(), "Error: Could not connect to the database"
         with engine.connect() as conn:
-            with conn.begin():
-                conn.execute(text(f"DROP TABLE IF EXISTS {name_partitioned_table};"))
-                conn.execute(text(f"""
-                    CREATE TABLE {name_partitioned_table} PARTITION OF {name_table}
-                    FOR VALUES FROM ('{start_date}') TO ('{end_date}');
-                """))
-                print(f"Table {name_partitioned_table} partitioned successfully")
-        
+            sql_command = f"""
+            SELECT DATE(event_time) AS event_day, COUNT(*) AS event_count
+			FROM {table_name}
+			WHERE event_time >= :start_date AND event_time < :end_date
+			AND event_type = :event_type_filter
+			GROUP BY event_day;
+            """
+            result = conn.execute(text(sql_command), {'start_date': start_date, 'end_date': end_date, 'event_type_filter': event_type_filter})
+
+            print(f"Generated {result.rowcount} rows")
         end_time = time.time()
         print(f"Elapsed time: {end_time - start_time:.2f} seconds")
-    except Exception as e:
+        return result.fetchall()
+
+    except AssertionError as e:
         print(f"Error: {e}")
 
-def creta_multiple_partitions(name_table, tables_dates):
-	for table_date in tables_dates:
-		partition_table_month(name_table, table_date[0], table_date[1], table_date[2])
+def generate_time_series_chart(data):
+    df = pd.DataFrame(data, columns=['event_time', 'event_count'])
+    df['event_time'] = pd.to_datetime(df['event_time'])
+    df.set_index('event_time', inplace=True)
 
-def insert_data_partitioned_table(table_origin, table_destination):
-	try:
-		start_time = time.time()
-		with engine.connect() as conn:
-			sql_command = f"""
-			INSERT INTO {table_destination}
-			SELECT * FROM {table_origin};
-			"""
-			conn.execute(text(sql_command))
-			conn.commit()
-			print(f"Data inserted successfully in {table_destination}")
-		
-		end_time = time.time()
-		print(f"Elapsed time: {end_time - start_time:.2f} seconds")
-	except Exception as e:
-		print(f"Error: {e}")
-		return None
+    df.resample('D').sum().plot()
+    plt.ylabel('Number of costumers')
+    plt.xlabel('month')
+    plt.legend().remove()
+    plt.tight_layout()
+    plt.savefig('number_of_costumers.png')
+    plt.close()
+    
+def generate_monthly_sales_chart(data):
+    # Asegúrate de que los datos están en el formato correcto:
+    # [(date1, count1), (date2, count2), ...]
+    
+    df = pd.DataFrame(data, columns=['event_day', 'event_count'])
+    
+    # Convertimos 'event_day' a datetime si no lo es ya
+    df['event_day'] = pd.to_datetime(df['event_day'])
+    
+    # Truncamos las fechas al primer día de cada mes y agrupamos por esta nueva columna
+    df['month'] = df['event_day'].dt.to_period('M')
+    monthly_data = df.groupby('month')['event_count'].sum().reset_index()
+    
+    # Convertimos 'month' a cadena para que sea más legible
+    monthly_data['month'] = monthly_data['month'].dt.strftime('%b %Y')
+    
+    # Creamos el gráfico
+    ax = monthly_data.plot(kind='bar', x='month', y='event_count', legend=False, color='skyblue')
+    ax.set_title('Total Sales per Month')
+    ax.set_xlabel('Month')
+    ax.set_ylabel('Total Sales')
+    
+    # Formateamos los ticks del eje y para que sean legibles
+    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+    
+    # Asegúrate de que las etiquetas del eje x sean legibles
+    ax.set_xticklabels(monthly_data['month'], rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig('monthly_sales_chart.png')
+    plt.close()
 
-def create_index_table_partition(tables_dates, colummns)->any:
-	try:
-		start_time = time.time()
-		assert engine.connect(), "Error: Could not connect to the database"
-		with engine.connect() as conn:
-			for table_date in tables_dates:
-				sql_command = f"""
-				CREATE INDEX ON {table_date[0]} ({colummns})
-				"""
-				conn.execute(text(sql_command))
-				conn.commit()
-		end_time = time.time()
-		print(f"Elapsed time: {end_time - start_time:.2f} seconds")
-		return True
-	except AssertionError as e:
-		print(f"Error: {e}")
-		return None
-	
 
 
 def main():
-	next_step = create_partitioned_table("new_customers")
-	tables_dates = [
-		("new_customers_2022_oct", "2022-10-01", "2022-11-01"),
-		("new_customers_2022_nov", "2022-11-01", "2022-12-01"),
-		("new_customers_2022_dec", "2022-12-01", "2023-01-01"),
-		("new_customers_2023_jan", "2023-01-01", "2023-02-01")
-	]
-	if next_step != None:
-		creta_multiple_partitions("new_customers", tables_dates)
-		insert_data_partitioned_table("customers", "new_customers")
-		create_index_table_partition(tables_dates, "event_time")
+	result = columnes_count('customers', '2022-10-01', '2023-03-01', 'purchase')
+	generate_time_series_chart(result)
+	generate_monthly_sales_chart(result)
  
 
 if __name__ == "__main__":
