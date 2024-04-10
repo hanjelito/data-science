@@ -23,7 +23,7 @@ def create_new_colums():
 		ALTER TABLE customers
 		ADD COLUMN category_id BIGINT,
 		ADD COLUMN category_code TEXT,
-		ADD COLUMN brand TEXT;
+		ADD COLUMN brand VARCHAR(255);
 		"""
 		result = conn.execute(text(sql_command))
 		conn.commit()
