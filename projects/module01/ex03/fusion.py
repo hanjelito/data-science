@@ -53,16 +53,23 @@ def fusion_items():
  
 	with engine.connect() as conn:
 		sql_command = f"""
-		UPDATE customers c
+		UPDATE customers
 		SET
-			category_id = COALESCE(i.category_id, c.category_id),
-			category_code = COALESCE(i.category_code, c.category_code),
-			brand = COALESCE(i.brand, c.brand)
-		FROM item i
-		WHERE c.product_id = i.product_id
-			AND (i.category_id IS NOT NULL
-				OR i.category_code IS NOT NULL
-				OR i.brand IS NOT NULL);
+			category_id = item_data.category_id,
+			category_code = item_data.category_code,
+			brand = item_data.brand
+		FROM (
+			SELECT
+				product_id,
+				MAX(category_id) AS category_id,
+				MAX(category_code) AS category_code,
+				MAX(brand) AS brand
+			FROM
+				item
+			GROUP BY
+				product_id
+		) AS item_data
+		WHERE customers.product_id = item_data.product_id
 		"""
 		result = conn.execute(text(sql_command))
 		conn.commit()
