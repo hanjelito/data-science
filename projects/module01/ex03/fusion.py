@@ -55,14 +55,14 @@ def fusion_items():
 		sql_command = f"""
 		UPDATE customers c
 		SET
-			category_id = i.category_id,
-			category_code = i.category_code,
-			brand = i.brand
+			category_id = COALESCE(i.category_id, c.category_id),
+			category_code = COALESCE(i.category_code, c.category_code),
+			brand = COALESCE(i.brand, c.brand)
 		FROM item i
 		WHERE c.product_id = i.product_id
-			AND i.category_id IS NOT NULL
-        	AND i.category_code IS NOT NULL
-        	AND i.brand IS NOT NULL;
+			AND (i.category_id IS NOT NULL
+				OR i.category_code IS NOT NULL
+				OR i.brand IS NOT NULL);
 		"""
 		result = conn.execute(text(sql_command))
 		conn.commit()
