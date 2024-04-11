@@ -74,29 +74,125 @@ def mustache_data(data):
 		f"max:	{df['max_price'].iloc[0]:>{max_width}.6f}"
 	)
 
-def generate_box_plot():
+# def generate_box_plot():
+#     try:
+
+#         consulta_sql = f"""SELECT
+#             price
+#         FROM customers
+#         WHERE event_type = 'purchase'
+#         """
+#         df = pd.DataFrame(data)
+
+#         plt.figure(figsize=(10, 6))
+
+#         sns.set(style="whitegrid")
+#         ax = sns.boxplot(x=df['price'])
+
+#         ax.set_xlabel('price')
+
+#         plt.savefig("test.png")
+#         plt.close()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return None
+
+
+# def generate_box_pgenerate_boxplot_plot():
+#     try:
+#         start_time = time.time()
+#         with engine.connect() as conn:
+#             consulta_sql = f"""
+#             SELECT
+#                 price
+#             FROM customers
+#             WHERE event_type = 'purchase'
+#             """
+#             result = conn.execute(text(consulta_sql))
+#             data = result.fetchall()
+#             df = pd.DataFrame(data)
+#             print(f"Generated {result.rowcount} rows")
+#             end_time = time.time()
+#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
+
+#             plt.figure(figsize=(10, 6))
+
+#             sns.set(style="whitegrid")
+#             ax = sns.boxplot(x=df['price'])
+
+#             ax.set_xlabel('price')
+
+#             plt.savefig("test.png")
+#             plt.close()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return None
+
+# def generate_boxplot_plot_showfliers():
+#     try:
+#         start_time = time.time()
+#         with engine.connect() as conn:
+#             consulta_sql = f"""
+#             SELECT
+#                 price
+#             FROM customers
+#             WHERE event_type = 'purchase'
+#             """
+#             result = conn.execute(text(consulta_sql))
+#             data = result.fetchall()
+#             df = pd.DataFrame(data)
+#             print(f"Generated {result.rowcount} rows")
+#             end_time = time.time()
+#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
+
+#             plt.figure(figsize=(10, 6))
+
+#             sns.set(style="whitegrid")
+#             ax = sns.boxplot(x=df['price'], showfliers=False)
+
+#             ax.set_xlabel('price')
+
+#             plt.savefig("box_with_showfliers.png")
+#             plt.close()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return None
+
+def generate_boxplot_comparison():
     try:
+        start_time = time.time()
+        with engine.connect() as conn:
+            consulta_sql = """
+            SELECT
+                price
+            FROM customers
+            WHERE event_type = 'purchase'
+            """
+            result = conn.execute(text(consulta_sql))
+            data = result.fetchall()
+            df = pd.DataFrame(data, columns=['price'])
 
-        consulta_sql = f"""SELECT
-            price
-        FROM customers
-        WHERE event_type = 'purchase'
-        """
-        df = pd.read_sql(consulta_sql, pandas_url)
+            print(f"Generated {result.rowcount} rows")
+            end_time = time.time()
+            print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
 
-        plt.figure(figsize=(10, 6))
+            plt.figure(figsize=(10, 12))
 
-        sns.set(style="whitegrid")
-        ax = sns.boxplot(x=df['price'])
+            plt.subplot(2, 1, 1)
+            sns.set(style="whitegrid")
+            ax1 = sns.boxplot(x=df['price'], showfliers=True)
+            ax1.set_xlabel('Price')
 
-        ax.set_xlabel('price')
+            plt.subplot(2, 1, 2) 
+            sns.set(style="whitegrid")
+            ax2 = sns.boxplot(x=df['price'], showfliers=False)
+            ax2.set_xlabel('Price')
 
-        plt.savefig("test.png")
-        plt.close()
+            plt.savefig("boxplot_comparison.png")
+            plt.close()
     except Exception as e:
         print(f"Error: {e}")
         return None
-		
 
 def main():
     # exercice 1
@@ -104,9 +200,10 @@ def main():
     mustache_data(result)
 
     # exercice 2 crea mi tabla temporal
-    # mustache_rider_day('customers', '2022-10-01', '2023-03-01')
-    generate_box_plot()
-    # pandas_url.dispose()
+    generate_boxplot_comparison()
+
+
+
     
 if __name__ == "__main__":
     main()
