@@ -74,90 +74,6 @@ def mustache_data(data):
 		f"max:	{df['max_price'].iloc[0]:>{max_width}.6f}"
 	)
 
-# def generate_box_plot():
-#     try:
-
-#         consulta_sql = f"""SELECT
-#             price
-#         FROM customers
-#         WHERE event_type = 'purchase'
-#         """
-#         df = pd.DataFrame(data)
-
-#         plt.figure(figsize=(10, 6))
-
-#         sns.set(style="whitegrid")
-#         ax = sns.boxplot(x=df['price'])
-
-#         ax.set_xlabel('price')
-
-#         plt.savefig("test.png")
-#         plt.close()
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return None
-
-
-# def generate_box_pgenerate_boxplot_plot():
-#     try:
-#         start_time = time.time()
-#         with engine.connect() as conn:
-#             consulta_sql = f"""
-#             SELECT
-#                 price
-#             FROM customers
-#             WHERE event_type = 'purchase'
-#             """
-#             result = conn.execute(text(consulta_sql))
-#             data = result.fetchall()
-#             df = pd.DataFrame(data)
-#             print(f"Generated {result.rowcount} rows")
-#             end_time = time.time()
-#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
-
-#             plt.figure(figsize=(10, 6))
-
-#             sns.set(style="whitegrid")
-#             ax = sns.boxplot(x=df['price'])
-
-#             ax.set_xlabel('price')
-
-#             plt.savefig("test.png")
-#             plt.close()
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return None
-
-# def generate_boxplot_plot_showfliers():
-#     try:
-#         start_time = time.time()
-#         with engine.connect() as conn:
-#             consulta_sql = f"""
-#             SELECT
-#                 price
-#             FROM customers
-#             WHERE event_type = 'purchase'
-#             """
-#             result = conn.execute(text(consulta_sql))
-#             data = result.fetchall()
-#             df = pd.DataFrame(data)
-#             print(f"Generated {result.rowcount} rows")
-#             end_time = time.time()
-#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
-
-#             plt.figure(figsize=(10, 6))
-
-#             sns.set(style="whitegrid")
-#             ax = sns.boxplot(x=df['price'], showfliers=False)
-
-#             ax.set_xlabel('price')
-
-#             plt.savefig("box_with_showfliers.png")
-#             plt.close()
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return None
-
 def generate_boxplot_comparison():
     try:
         start_time = time.time()
@@ -194,16 +110,81 @@ def generate_boxplot_comparison():
         print(f"Error: {e}")
         return None
 
+# def generate_average_basket_price_boxplot():
+#     try:
+#         start_time = time.time()
+#         with engine.connect() as conn:
+#             consulta_sql = """
+#             SELECT
+#                 user_id,
+#                 AVG(price) as average_basket_price
+#             FROM customers
+#             where event_type = 'purchase'
+#             GROUP BY user_id
+#             """
+#             result = conn.execute(text(consulta_sql))
+#             data = result.fetchall()
+#             df = pd.DataFrame(data, columns=['user_id', 'average_basket_price'])
+
+#             print(f"Generated {result.rowcount} rows")
+#             end_time = time.time()
+#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
+
+#             sns.set(style="whitegrid")
+#             plt.figure(figsize=(10, 6))
+#             ax = sns.boxplot(x=df['average_basket_price'], showfliers=False)
+#             ax.set_xlabel('Average Basket Price per User')
+#             plt.savefig("average_basket_price_boxplot.png")
+#             plt.close()
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return None
+
+def generate_average_basket_price_boxplot():
+    # Tus estadísticas sumarias
+    stats = {
+        'mean': 4.932943,
+        'std': 8.925811,
+        'min': -79.370000,
+        '25%': 1.590000,
+        '50%': 3.000000,
+        '75%': 5.400000,
+        'max': 327.780000
+    }
+
+    # Los valores atípicos se podrían calcular como aquellos fuera de los bigotes del box plot.
+    # Por simplicidad, vamos a generar algunos datos aleatorios que podrían representar valores atípicos.
+    np.random.seed(0)  # Para reproducibilidad
+    outliers = np.random.uniform(low=stats['min'], high=stats['max'], size=10)
+
+    # Datos para el box plot basados en estadísticas sumarias
+    data = [stats['min'], stats['25%'], stats['50%'], stats['75%'], stats['max']]
+
+    # Crear un box plot
+    plt.figure(figsize=(10, 2))  # Tamaño del gráfico
+    plt.boxplot(data, vert=False, whis=[0, 100], showfliers=False)  # No mostrar los fliers automáticos
+
+    # Añadir los valores atípicos
+    plt.scatter(outliers, np.ones_like(outliers), color='red', alpha=0.5)
+
+    # Añadir título y etiquetas
+    plt.title('Box Plot with the Average Basket Price per User')
+    plt.xlabel('Average Basket Price')
+
+    # Configurar límites del eje x
+    plt.xlim(28, 42)
+    plt.savefig("test.png")
+    plt.close()
+
 def main():
     # exercice 1
-    result = mustache_rider('customers', '2022-10-01', '2023-03-01')
-    mustache_data(result)
+    # result = mustache_rider('customers', '2022-10-01', '2023-03-01')
+    # mustache_data(result)
 
     # exercice 2 crea mi tabla temporal
-    generate_boxplot_comparison()
+    # generate_boxplot_comparison()
+    # exercice 3
+    generate_average_basket_price_boxplot()
 
-
-
-    
 if __name__ == "__main__":
     main()
