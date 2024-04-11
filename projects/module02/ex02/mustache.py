@@ -142,39 +142,47 @@ def generate_boxplot_comparison():
 
 def generate_average_basket_price_boxplot():
     # Tus estadísticas sumarias
-    stats = {
-        'mean': 4.932943,
-        'std': 8.925811,
-        'min': -79.370000,
-        '25%': 1.590000,
-        '50%': 3.000000,
-        '75%': 5.400000,
-        'max': 327.780000
-    }
+    try:
+        start_time = time.time()
+        
+        # Crear la consulta SQL
+        consulta_sql = """
+        SELECT
+            user_id,
+            sum(price) AS sum_price
+        FROM
+            customers
+        WHERE
+            event_type = 'purchase'
+        GROUP BY
+            user_id;
+        """
+        
+        with engine.connect() as conn:
+            # Ejecutar la consulta y cargar los resultados directamente en un DataFrame de pandas
+            df = pd.read_sql(consulta_sql, conn)
+        
+        # Asegúrate de que 'average_price' es de tipo flotante
+        df['sum_price'] = df['sum_price'].astype(float)
 
-    # Los valores atípicos se podrían calcular como aquellos fuera de los bigotes del box plot.
-    # Por simplicidad, vamos a generar algunos datos aleatorios que podrían representar valores atípicos.
-    np.random.seed(0)  # Para reproducibilidad
-    outliers = np.random.uniform(low=stats['min'], high=stats['max'], size=10)
+        # Calcula el tiempo transcurrido y muestra la cantidad de filas
+        end_time = time.time()
+        print(f"Generated {len(df)} rows")
+        print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
 
-    # Datos para el box plot basados en estadísticas sumarias
-    data = [stats['min'], stats['25%'], stats['50%'], stats['75%'], stats['max']]
+        # Crear un box plot
+        plt.figure(figsize=(10, 6))  # Tamaño del gráfico
+        sns.boxplot(x=df['sum_price'], showfliers=False)  # Crear el box plot (sin los valores atípicos
 
-    # Crear un box plot
-    plt.figure(figsize=(10, 2))  # Tamaño del gráfico
-    plt.boxplot(data, vert=False, whis=[0, 100], showfliers=False)  # No mostrar los fliers automáticos
-
-    # Añadir los valores atípicos
-    plt.scatter(outliers, np.ones_like(outliers), color='red', alpha=0.5)
-
-    # Añadir título y etiquetas
-    plt.title('Box Plot with the Average Basket Price per User')
-    plt.xlabel('Average Basket Price')
-
-    # Configurar límites del eje x
-    plt.xlim(28, 42)
-    plt.savefig("test.png")
-    plt.close()
+        # Añadir título y etiquetas
+        plt.title('Box Plot with the Average Basket Price per User')
+        plt.xlabel('Average Basket Price')
+        plt.savefig("test.png")
+        plt.close()
+            
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 def main():
     # exercice 1
