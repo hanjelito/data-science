@@ -134,7 +134,7 @@ def main():
 		creta_multiple_partitions("new_customers", tables_dates)
 		insert_data_partitioned_table("customers", "new_customers")
 		create_index_table_partition(tables_dates, "event_time")
-	# rename_table()
+	rename_table()
  
 
 if __name__ == "__main__":
