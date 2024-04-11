@@ -6,7 +6,10 @@ import matplotlib.pyplot as plt
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 import matplotlib.dates as mdates
+import matplotlib.patches as patches
 import seaborn as sns
+from sqlalchemy import create_engine
+
 
 
 def connect():
@@ -15,6 +18,7 @@ def connect():
     return engine
 
 try:
+    pandas_url = create_engine('postgresql://juan-gon:mysecretpassword@localhost:5432/piscineds')
     engine = connect()
 except SQLAlchemyError as e:
     print(f"Error: {e}")
@@ -46,37 +50,6 @@ def mustache_rider(table: str, start: str, end: str):
 		print(f"Error: {e}")
 		return None
 
-def mustache_rider_day(table: str, start: str, end: str):
-    try:
-        start_time = time.time()
-        with engine.connect() as conn:
-
-            sql_command = f"""
-            SELECT
-                DATE(event_time) AS date,
-                COUNT(*) AS count,
-                AVG(price) AS mean,
-                STDDEV(price) AS std_dev,
-                MIN(price) AS min_price,
-                MAX(price) AS max_price,
-                PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY price) AS first_quartile,
-                PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY price) AS median,
-                PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY price) AS third_quartile
-            FROM {table}
-            WHERE event_type = 'purchase'
-            GROUP BY DATE(event_time)
-            ORDER BY DATE(event_time);  -- Ensure order by date
-            """
-
-            result = conn.execute(text(sql_command))
-            print(f"Generated {result.rowcount} rows")
-            end_time = time.time()
-            print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
-            return result.fetchall()
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-
 def mustache_data(data):
 	df = pd.DataFrame(data)
 	max_width = max(
@@ -102,45 +75,38 @@ def mustache_data(data):
 	)
 
 def generate_box_plot():
-    datos = {
-		"count": 1286045.0,
-		"mean": 4.932943,
-		"std": 8.925811,
-		"min": -79.37,
-		"25%": 1.59,
-		"50%": 3.0,
-		"75%": 5.4,
-		"max": 327.78
-	}
+    try:
 
-    # Configurar el estilo del gráfico (esto es opcional y puede ser modificado para coincidir con el estilo deseado)
-    sns.set(style="whitegrid")
-    
-    # Crear el gráfico de caja y bigotes con Seaborn, que automáticamente añadirá los puntos atípicos
-    ax = sns.boxplot(x=datos, width=0.3)
+        consulta_sql = f"""SELECT
+            price
+        FROM customers
+        WHERE event_type = 'purchase'
+        """
+        df = pd.read_sql(consulta_sql, pandas_url)
 
-    # Superponer un stripplot para mostrar todos los puntos de datos
-    sns.stripplot(x=datos, color='grey', alpha=0.6, jitter=True)
+        plt.figure(figsize=(10, 6))
 
-    # Configurar títulos y etiquetas
-    ax.set_title('Gráfico de Caja y Bigotes')
-    ax.set_xlabel('Precio')
-    
-    # Configurar los límites del eje X si es necesario
-    ax.set_xlim(-50, 350)
+        sns.set(style="whitegrid")
+        ax = sns.boxplot(x=df['price'])
 
-	# Guardar la imagen
-    plt.savefig("test.png")
+        ax.set_xlabel('price')
 
-	# Cerrar la ventana del diagrama
-    plt.close()
+        plt.savefig("test.png")
+        plt.close()
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 		
 
 def main():
-    # result = mustache_rider('customers', '2022-10-01', '2023-03-01')
-    # mustache_data(result)
-    # result = mustache_rider_day('customers', '2022-10-01', '2023-03-01')
+    # exercice 1
+    result = mustache_rider('customers', '2022-10-01', '2023-03-01')
+    mustache_data(result)
+
+    # exercice 2 crea mi tabla temporal
+    # mustache_rider_day('customers', '2022-10-01', '2023-03-01')
     generate_box_plot()
+    # pandas_url.dispose()
     
 if __name__ == "__main__":
     main()
