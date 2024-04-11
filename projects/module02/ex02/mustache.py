@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 import matplotlib.dates as mdates
-# import seaborn as sns
+import seaborn as sns
 
 
 def connect():
@@ -102,7 +102,7 @@ def mustache_data(data):
 	)
 
 def generate_box_plot():
-	datos = {
+    datos = {
 		"count": 1286045.0,
 		"mean": 4.932943,
 		"std": 8.925811,
@@ -113,22 +113,27 @@ def generate_box_plot():
 		"max": 327.78
 	}
 
-	plt.boxplot(datos.values(), vert=False)
-	plt.xlim(-79.37, 327.78)
-	plt.xlabel("Valor")
+    # Configurar el estilo del gráfico (esto es opcional y puede ser modificado para coincidir con el estilo deseado)
+    sns.set(style="whitegrid")
+    
+    # Crear el gráfico de caja y bigotes con Seaborn, que automáticamente añadirá los puntos atípicos
+    ax = sns.boxplot(x=datos, width=0.3)
 
-	# Configurar los límites del eje Y
-	# plt.yticks(range(-79, 32, 50))
+    # Superponer un stripplot para mostrar todos los puntos de datos
+    sns.stripplot(x=datos, color='grey', alpha=0.6, jitter=True)
 
-	# Agregar etiquetas a los ejes
-	plt.xlabel("Valor")
-	plt.ylabel("Variable")
+    # Configurar títulos y etiquetas
+    ax.set_title('Gráfico de Caja y Bigotes')
+    ax.set_xlabel('Precio')
+    
+    # Configurar los límites del eje X si es necesario
+    ax.set_xlim(-50, 350)
 
 	# Guardar la imagen
-	plt.savefig("test.png")
+    plt.savefig("test.png")
 
 	# Cerrar la ventana del diagrama
-	plt.close()
+    plt.close()
 		
 
 def main():
