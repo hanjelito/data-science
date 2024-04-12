@@ -93,7 +93,7 @@ def monetary_value(table: str) -> None:
 		plt.bar(customer_count['range'], customer_count['customers'], color='skyblue')
 		plt.xticks(rotation=0)
 		plt.ylim(0, customer_count['customers'].max() * 1.1)
-		plt.xlabel('Monetary Value in $')
+		plt.xlabel('Monetary Value in ₳')
 		plt.ylabel('Customers')
 		plt.savefig("monetary_value.png")
 		plt.close()
