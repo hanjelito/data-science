@@ -1,14 +1,9 @@
 import pandas as pd
-import numpy as np
-import datetime
 import time
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-import matplotlib.dates as mdates
-import matplotlib.patches as patches
 import seaborn as sns
-from sqlalchemy import create_engine
 
 
 
@@ -18,7 +13,6 @@ def connect():
     return engine
 
 try:
-    pandas_url = create_engine('postgresql://juan-gon:mysecretpassword@localhost:5432/piscineds')
     engine = connect()
 except SQLAlchemyError as e:
     print(f"Error: {e}")
