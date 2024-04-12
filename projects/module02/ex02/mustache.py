@@ -71,7 +71,7 @@ def mustache_data(data):
 		f"25%:	{df['first_quartile'].iloc[0]:>{max_width}.6f}\n"
 		f"50%:	{df['median'].iloc[0]:>{max_width}.6f}\n"
 		f"75%:	{df['third_quartile'].iloc[0]:>{max_width}.6f}\n"
-		f"max:	{df['max_price'].iloc[0]:>{max_width}.6f}"
+		f"max:	{df['max_price'].iloc[0]:>{max_width}.6f}\n\n\n\n\n\n\n"
 	)
 
 def generate_boxplot_comparison():
@@ -110,42 +110,10 @@ def generate_boxplot_comparison():
         print(f"Error: {e}")
         return None
 
-# def generate_average_basket_price_boxplot():
-#     try:
-#         start_time = time.time()
-#         with engine.connect() as conn:
-#             consulta_sql = """
-#             SELECT
-#                 user_id,
-#                 AVG(price) as average_basket_price
-#             FROM customers
-#             where event_type = 'purchase'
-#             GROUP BY user_id
-#             """
-#             result = conn.execute(text(consulta_sql))
-#             data = result.fetchall()
-#             df = pd.DataFrame(data, columns=['user_id', 'average_basket_price'])
-
-#             print(f"Generated {result.rowcount} rows")
-#             end_time = time.time()
-#             print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
-
-#             sns.set(style="whitegrid")
-#             plt.figure(figsize=(10, 6))
-#             ax = sns.boxplot(x=df['average_basket_price'], showfliers=False)
-#             ax.set_xlabel('Average Basket Price per User')
-#             plt.savefig("average_basket_price_boxplot.png")
-#             plt.close()
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return None
-
 def generate_average_basket_price_boxplot():
-    # Tus estadísticas sumarias
     try:
         start_time = time.time()
         
-        # Crear la consulta SQL
         consulta_sql = """
         SELECT
             user_id,
@@ -159,38 +127,43 @@ def generate_average_basket_price_boxplot():
         """
         
         with engine.connect() as conn:
-            # Ejecutar la consulta y cargar los resultados directamente en un DataFrame de pandas
             df = pd.read_sql(consulta_sql, conn)
         
-        # Asegúrate de que 'average_price' es de tipo flotante
-        df['sum_price'] = df['sum_price'].astype(float)
 
-        # Calcula el tiempo transcurrido y muestra la cantidad de filas
         end_time = time.time()
         print(f"Generated {len(df)} rows")
         print(f"Elapsed time: {end_time - start_time:.2f} seconds\n")
-
-        # Crear un box plot
-        plt.figure(figsize=(10, 6))  # Tamaño del gráfico
-        sns.boxplot(x=df['sum_price'], showfliers=False)  # Crear el box plot (sin los valores atípicos
-
+        
+        media = df['sum_price'].mean()
+        p25 = df['sum_price'].quantile(0.25)
+        p50 = df['sum_price'].quantile(0.50)
+        p75 = df['sum_price'].quantile(0.75)
+        
+        iqr = p75 - p25
+        print(f"Mean: {media:.2f}")
+        print(f"25th percentile: {p25:.2f}")
+        print(f"50th percentile: {p50:.2f}")
+        print(f"75th percentile: {p75:.2f}")
+        
+        plt.figure(figsize=(10, 7))
+        sns.boxplot(x=df['sum_price'],  showfliers=True)
+        factor = 2.0
+        plt.xlim((p25 - factor * iqr) + 40 , p75 + factor * iqr)
         # Añadir título y etiquetas
-        plt.title('Box Plot with the Average Basket Price per User')
-        plt.xlabel('Average Basket Price')
-        plt.savefig("test.png")
+        plt.savefig("average_basket_peer_user.png")
         plt.close()
-            
+
     except Exception as e:
         print(f"Error: {e}")
         return None
 
 def main():
     # exercice 1
-    # result = mustache_rider('customers', '2022-10-01', '2023-03-01')
-    # mustache_data(result)
+    result = mustache_rider('customers', '2022-10-01', '2023-03-01')
+    mustache_data(result)
 
-    # exercice 2 crea mi tabla temporal
-    # generate_boxplot_comparison()
+    # exercice 2
+    generate_boxplot_comparison()
     # exercice 3
     generate_average_basket_price_boxplot()
 
