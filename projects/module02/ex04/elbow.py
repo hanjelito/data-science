@@ -22,6 +22,10 @@ def thousands_formatter(x, pos):
     return f'{int(x)}'
 
 def method_elbow(table: str) -> None:
+    """
+    Método del codo para determinar el número óptimo de clusters.
+    suma de las distancias al cuadrado de cada punto al centroide de su cluster
+    """
     try:
         start_time = time.time()
 
