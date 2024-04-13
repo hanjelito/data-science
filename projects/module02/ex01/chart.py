@@ -34,6 +34,7 @@ def create_query_date(table_name: str, new_table: str, start_date: str, end_date
             FROM {table_name}
             WHERE event_time >= :start_date AND event_time < :end_date
             AND event_type = :event_type_filter
+            and event_type = 'purchase'
             GROUP BY event_day
             """
             result = conn.execute(text(sql_command), {'start_date': start_date, 'end_date': end_date, 'event_type_filter': event_type_filter})
@@ -86,8 +87,9 @@ def generate_time_series_chart(data):
     plt.close()
     
 def generate_monthly_sales_chart(data):
-    # Convert data to DataFrame and set column names
-    df = pd.DataFrame(data, columns=['event_day', 'event_count', 'total_price', 'unique_users', 'fifth_column'])
+    df = pd.DataFrame(data)
+    df['event_day'] = pd.to_datetime(df['event_day'])
+    df = df[['event_day', 'event_count']]
     
     # Convert event_day to datetime and extract month
     df['event_day'] = pd.to_datetime(df['event_day'])
@@ -96,7 +98,7 @@ def generate_monthly_sales_chart(data):
     # Sum event counts by month and format month names
     monthly_data = df.groupby('month')['event_count'].sum().reset_index()
     monthly_data['month'] = monthly_data['month'].dt.strftime('%b')
-    monthly_data['event_count'] = monthly_data['event_count'] / 1e6  # Scale to millions
+    monthly_data['event_count'] = monthly_data['event_count'] / 1e5  # Scale to millions
     
     # Create a bar plot
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -105,7 +107,9 @@ def generate_monthly_sales_chart(data):
     # Set custom formatting for the plot
     ax.set_xlabel('Month')
     ax.set_ylabel('Total Sales Millions of ₳')
-    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, loc: "{:,.1f}".format(x)))
+    # ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, loc: "{:,.1f}".format(x)))
+    ax.get_yaxis().set_major_formatter(FuncFormatter(lambda x, p: "{:,.2f}".format(x)))
+
     ax.set_xticklabels(monthly_data['month'], rotation=0)
     
     # Improve layout and save the figure
@@ -135,17 +139,17 @@ def generate_average_spend(data):
     ax.set_xlabel('')
     ax.legend().remove()
 
-    plt.savefig('monthly_sales_chart.png')
+    plt.savefig('average_spend.png')
     plt.close()
     
 
 def main():
     # create table
-    # create_query_date('customers', 'total_sales', '2022-10-01', '2023-03-01', 'purchase')
+    create_query_date('customers', 'total_sales', '2022-10-01', '2023-03-01', 'purchase')
     result = query_total_sales('total_sales')
     generate_time_series_chart(result)
     generate_monthly_sales_chart(result)
-    # generate_average_spend(result)
+    generate_average_spend(result)
 
 
  

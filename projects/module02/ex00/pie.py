@@ -24,7 +24,8 @@ def columnes_count(table_name :str, start_date :str, end_date :str)->any:
 			sql_command = f"""
 			SELECT event_type, COUNT(*) AS event_count
 			FROM {table_name}
-			WHERE event_time >= :start_date AND event_time < :end_date
+			WHERE
+				event_time >= :start_date AND event_time < :end_date
 			GROUP BY event_type;
 			"""
 			result = conn.execute(text(sql_command), {'start_date': start_date, 'end_date': end_date})

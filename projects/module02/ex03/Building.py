@@ -20,6 +20,13 @@ except SQLAlchemyError as e:
     
     
 def frequency(table: str) -> None:
+	"""
+	SQL: count of the number of purchases made by each customer
+	Frequency Group: 0-9, 10-19, 20-29, 30-39, 40-49 is the range of frequency manually defined
+	Filters: only the frequencies greater than or equal to the mean
+	"""
+	
+
 	try:
 		start_time = time.time()
 		sql_command = """
@@ -37,7 +44,7 @@ def frequency(table: str) -> None:
 		with engine.connect() as conn:
 			df = pd.read_sql(sql_command, conn)
 		
-		# Agrupamos por frecuencia		
+		# Agrupamos por frecuencia y contamos el número de usuarios
 		df['frequency_group'] = pd.cut(df['frequency'], bins=range(0, df['frequency'].max() + 10, 10), right=False)
 		grouped_df = df.groupby('frequency_group', observed=True).size().reset_index(name='number_of_users')
 
@@ -65,6 +72,10 @@ def frequency(table: str) -> None:
 		return None
 
 def monetary_value(table: str) -> None:
+	"""
+	SQL: sum of the monetary values spent by each customer
+	Range: 0-24, 25-74, 75-124, 125-174, 175-224 is the range of monetary values manually defined
+	"""
 	try:
 		start_time = time.time()
 		sql_command = f"""
