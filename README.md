@@ -1,3 +1,3 @@
 pip list
 
-pip install pillow tqdm numpy scipy matplotlib pandas SQLalchemy psycopg2-binary seaborn
+pip install pillow tqdm numpy scipy matplotlib pandas SQLalchemy psycopg2-binary seaborn scikit-learn
