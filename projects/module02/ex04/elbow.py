@@ -33,8 +33,7 @@ def method_elbow(table: str) -> None:
             SELECT 
                 user_id,
                 MAX(event_time) AS last_purchase_date,
-                SUM(price) AS total_spent,
-                AVG(price) AS average_price
+                SUM(price) AS total_spent
             FROM 
                 {table}
             WHERE
@@ -51,7 +50,7 @@ def method_elbow(table: str) -> None:
 
         # Escalado de datos
         scaler = StandardScaler()
-        df_scaled = scaler.fit_transform(df[['total_spent', 'average_price', 'days_since_last_purchase']])
+        df_scaled = scaler.fit_transform(df[['total_spent', 'days_since_last_purchase']])
 
         k_values = range(1, 11)
         inertias = []
