@@ -89,20 +89,20 @@ def generate_time_series_chart(data):
 def generate_monthly_sales_chart(data):
     df = pd.DataFrame(data)
     df['event_day'] = pd.to_datetime(df['event_day'])
-    df = df[['event_day', 'event_count']]
+    df = df[['event_day', 'total_price']]
     
     # Convert event_day to datetime and extract month
     df['event_day'] = pd.to_datetime(df['event_day'])
     df['month'] = df['event_day'].dt.to_period('M')
     
     # Sum event counts by month and format month names
-    monthly_data = df.groupby('month')['event_count'].sum().reset_index()
+    monthly_data = df.groupby('month')['total_price'].sum().reset_index()
     monthly_data['month'] = monthly_data['month'].dt.strftime('%b')
-    monthly_data['event_count'] = monthly_data['event_count'] / 1e5  # Scale to millions
+    monthly_data['total_price'] = (monthly_data['total_price'] / 1e6)  # Scale to millions
     
     # Create a bar plot
     fig, ax = plt.subplots(figsize=(10, 7))
-    monthly_data.plot(kind='bar', x='month', y='event_count', legend=False, color='skyblue', ax=ax)
+    monthly_data.plot(kind='bar', x='month', y='total_price', legend=False, color='skyblue', ax=ax)
     
     # Set custom formatting for the plot
     ax.set_xlabel('Month')
