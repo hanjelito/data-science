@@ -70,6 +70,8 @@ def main():
     df2 = pd.read_csv('/vagrant/store/modulo03/Test_knight.csv')
     df_st = standardize(df)
     df2_st = standardize(df2)
+    print(df2.head(2))
+    print(df2_st.head(2))
     configure_plots(df_st, df2_st, "clusters_standardization.png")
 
 if "__main__" == __name__:
