@@ -110,7 +110,7 @@ def classification_report_manual(y_true, y_pred, target_names=None):
 
 	# Ajustar la configuración de visualización de Pandas
 	pd.options.display.float_format = '{:,.2f}'.format
-    
+    # https://www.v7labs.com/blog/confusion-matrix-guide
 	return df
 
 def confusion_matrix_report2(path_predictions, path_truth):
