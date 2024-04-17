@@ -13,12 +13,6 @@ def load(file: str):
     except Exception as e:
         print(f"Error: {e}")
         return None
-    
-def unique_columns(df: pd.DataFrame):
-    valores_unicos = df.iloc[:, -1].unique()
-    mapeo = {valor: indice for indice, valor in enumerate(valores_unicos)}
-    return mapeo
-
 
 def histogram(df: pd.DataFrame, name: str):
     try:
@@ -37,12 +31,13 @@ def histogram(df: pd.DataFrame, name: str):
         }
         
         fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_width, fig_height), constrained_layout=True)
-        axes = axes.flatten()  # Aplana el arreglo de ejes para un manejo más fácil
+        axes = axes.flatten()
+        
 
         for i, feature in enumerate(df_reduced.columns):
             ax = axes[i]
-            for key in categoria.unique():  # Itera sobre los valores únicos en la categoría
-                mask = categoria == key  # Crea una máscara booleana para cada categoría
+            for key in categoria.unique():
+                mask = categoria == key
                 ax.hist(df_reduced.loc[mask, feature], bins=40, alpha=0.5, label=str(key), color=color_map[key], rwidth=bin_width)
                 ax.set_title(feature)
                 ax.legend()
