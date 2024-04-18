@@ -44,7 +44,7 @@ def configure_plots(df1, df2, filename):
     ensure_knight_column(df2)
 
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 12))
     palette_colors = {'Sith': 'red', 'Jedi': 'blue', 'knight': 'green'}
 
     plots = [
