@@ -22,8 +22,7 @@ def create_correlation(df: pd.DataFrame):
         return correlation_with_knight
     else:
         print("El DataFrame está vacío o no se pudo cargar.")
-        
-        
+
 df = load("/vagrant/store/modulo03/Train_knight.csv")
 cor = create_correlation(df)
 print(cor)

@@ -1,25 +1,33 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-def heatmap(conf_matrix, filename):
-	fig, ax = plt.subplots(figsize=(8, 6))
-	sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', ax=ax, xticklabels=['0', '1'], yticklabels=['0', '1'])
-	plt.title('Confusion Matrix')
-	plt.ylabel('Actual')
-	plt.xlabel('Predicted')
-	plt.tight_layout()
-	plt.tight_layout()
-	plt.savefig(filename)
-	plt.close()
- 
+
+def load_file(path):
+    df = pd.read_csv(path, index_col=None)
+    return df
+
+def heatmap(df: pd.DataFrame):
+    if 'knight' in df.columns:
+        df['knight'] = df['knight'].map({'Jedi': 0, 'Sith': 1})
+    
+    
+    correlation_matrix = df.corr()
+    # print(correlation_matrix)
+
+    # plt.figure(figsize=(20, 17))
+    # sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(correlation_matrix)
+    plt.savefig("heatmap.png")
+    plt.close()
 
 def main():
-	Test_knight = '/vagrant/store/modulo04/Test_knight.csv'
-	Train_knight = '/vagrant/store/modulo04/Train_knight.csv'
-	# confusion_matrix_report(path_predictions, path_truth)
-	heatmap(Test_knight, 'test.png')
+    train_knight = '/vagrant/store/modulo04/Train_knight.csv'
+    df = load_file(train_knight)
+    heatmap(df)
 
 if __name__ == '__main__':
-	main()
+    main()

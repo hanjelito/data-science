@@ -19,26 +19,25 @@ def plot_scatter(df, x, y, ax, palette_colors, legend_loc):
     set_style(ax, legend_loc)
 
 def standardize(df):
-    # Comprobar si la columna 'knight' existe en el DataFrame
+    """
+    Estandariza los datos de un DataFrame.
+    X_standardized = (X - X.mean()) / X.std()
+    """
     if 'knight' in df.columns:
-        # Separar las características y la variable de etiquetas
         X = df.drop('knight', axis=1)
         y = df['knight']
     else:
-        X = df  # Si no existe la columna 'knight', usar todo el df como X
-    
-    # StandardScaler es una clase de Scikit-learn que estandariza las columnas de un DataFrame
+        X = df
+
     scaler = StandardScaler()
-    # fit_transform() estandariza las columnas seleccionadas
     X_scaled = scaler.fit_transform(X)
-    # Convertir de nuevo a DataFrame para mejor visualización con las columnas originales
     df_scaled = pd.DataFrame(X_scaled, columns=X.columns)
     df_scaled = df_scaled.round(2)
     
     # Reincorporar la columna 'knight' si existe
     if 'knight' in df.columns:
         df_scaled['knight'] = y
-    
+
     return df_scaled
 
 def configure_plots(df1, df2, filename):

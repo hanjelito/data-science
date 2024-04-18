@@ -83,34 +83,26 @@ def classification_report_manual(y_true, y_pred, target_names=None):
 		precision = TP / (TP + FP) if TP + FP > 0 else 0
 		recall = TP / (TP + FN) if TP + FN > 0 else 0
 		f1_score = 2 * (precision * recall) / (precision + recall) if precision + recall > 0 else 0
-		support = sum(y_true == label)
+		total = sum(y_true == label)
 		
 		metrics.append({
 			'label': name,
 			'precision': precision,
 			'recall': recall,
 			'f1-score': f1_score,
-			'support': support
+			'total': total
 		})
 
 	df = pd.DataFrame(metrics)
-	total_support = df['support'].sum()
+	total_support = df['total'].sum()
 	df.set_index('label', inplace=True)
     
-	# Calculating averages
 	accuracy = round(sum(y_true == y_pred) / len(y_true), 2)
-	macro_avg = df[['precision', 'recall', 'f1-score']].mean().round(2)
-	weighted_avg = (df[['precision', 'recall', 'f1-score']].multiply(df['support'], axis=0).sum() / total_support).round(2)
+	print(accuracy)
+	df.loc['accuracy'] =  '', '', accuracy, total_support
 
-	macro_avg['support'] = total_support
-	weighted_avg['support'] = total_support
-
-	df.loc['accuracy'] = [accuracy] * 3 + [total_support]
-	df.loc['macro avg'] = macro_avg
-	df.loc['weighted avg'] = weighted_avg
-
-	# Ajustar la configuración de visualización de Pandas
 	pd.options.display.float_format = '{:,.2f}'.format
+
     # https://www.v7labs.com/blog/confusion-matrix-guide
 	return df
 
@@ -127,8 +119,10 @@ def confusion_matrix_report2(path_predictions, path_truth):
 	conf_matrix = confusion_matrix_manual(truth_encoded, predictions_encoded)
 
 	# Calcular precision, recall y f1-score
-	report = classification_report_manual(truth_encoded, predictions_encoded, target_names=['0', '1'])
+	report = classification_report_manual(truth_encoded, predictions_encoded, target_names=['Jedi', 'Sith'])
 
+	# Imprimir el reporte
+	# data_test = pd.DataFrame
 	print(report)
 	print(conf_matrix)
 
@@ -136,7 +130,7 @@ def confusion_matrix_report2(path_predictions, path_truth):
 	fig, ax = plt.subplots(figsize=(10, 6))
 	sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='viridis', ax=ax, xticklabels=['0', '1'], yticklabels=['0', '1'])
 	plt.tight_layout()
-	plt.savefig('test.png')
+	plt.savefig('confusion_matrix_report.png')
  
 
  

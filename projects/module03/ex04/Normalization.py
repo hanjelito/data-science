@@ -18,19 +18,18 @@ def plot_scatter(df, x, y, ax, palette_colors, legend_loc):
     set_style(ax, legend_loc)
 
 def normalize(df):
-    # Comprobar si la columna 'knight' existe en el DataFrame
+    """
+    Normaliza los datos de un DataFrame.
+    X_normalized = (X - X.min()) / (X.max() - X.min()) 
+    """
     if 'knight' in df.columns:
-        # Separar las características y la variable de etiquetas
         X = df.drop('knight', axis=1)
         y = df['knight']
     else:
-        X = df  # Si no existe la columna 'knight', usar todo el df como X
-    
-    # MinMaxScaler es una clase de Scikit-learn que normaliza las columnas de un DataFrame
+        X = df
+
     scaler = MinMaxScaler()
-    # fit_transform() normaliza las columnas seleccionadas
     X_normalized = scaler.fit_transform(X)
-    # Convertir de nuevo a DataFrame para mejor visualización con las columnas originales
     df_normalized = pd.DataFrame(X_normalized, columns=X.columns)
     df_normalized = df_normalized.round(2)
     
@@ -45,7 +44,7 @@ def configure_plots(df1, df2, filename):
     ensure_knight_column(df2)
 
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 12))
     palette_colors = {'Sith': 'red', 'Jedi': 'blue', 'knight': 'green'}
 
     plots = [
@@ -61,8 +60,6 @@ def configure_plots(df1, df2, filename):
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
-
-
 
 def main():
     df = pd.read_csv('/vagrant/store/modulo03/Train_knight.csv')
