@@ -65,7 +65,8 @@ def classification_report_manual(y_true, y_pred, target_names=None):
 	recall: TP / (TP + FN)
 	f1-score: 2 * (precision * recall) / (precision + recall)
 	support: number of occurrences of each class
-	accuracy: (TP + TN) / (TP + TN + FP + FN)
+	accuracy: (TP + TN) / (TP  + FP  + TN + FN)
+	specifity: TN / (TN + FP) -- (is not in the sklearn classification_report function)
 	macro avg: unweighted mean of precision, recall and f1-score
 	weighted avg: weighted mean of precision, recall and f1-score
 	"""
@@ -128,7 +129,6 @@ def confusion_matrix_report2(path_predictions, path_truth):
 	# Calcular precision, recall y f1-score
 	report = classification_report_manual(truth_encoded, predictions_encoded, target_names=['0', '1'])
 
-	# Imprimir el reporte
 	print(report)
 	print(conf_matrix)
 
