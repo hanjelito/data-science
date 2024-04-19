@@ -7,12 +7,16 @@ import matplotlib.pyplot as plt
 
 # K-Nearest Neighbors
 
-train_data = pd.read_csv('Train_knight.csv')
-test_data = pd.read_csv('Test_knight.csv')
+train_data = pd.read_csv('Training_knight.csv')
+test_data = pd.read_csv('Validation_knight.csv')
 
 X_train = train_data.drop('knight', axis=1)
 y_train = train_data['knight']
-X_test = test_data
+
+if 'knight' in test_data.columns:
+    X_test = test_data.drop('knight', axis=1)
+else:
+    X_test = test_data
 
 # Split the data into train and validation
 X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(

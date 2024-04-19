@@ -106,7 +106,7 @@ def confusion_matrix_report2(path_predictions, path_truth):
 	plt.close()
  
 def main():
-	path_predictions = 'predictions.txt'
+	path_predictions = 'Tree.txt'
 	path_truth = 'truth.txt'
 	confusion_matrix_report2(path_predictions, path_truth)
 

@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 def training_validation_split(df):
-	train_df, validation_df = train_test_split(df, test_size=0.3, random_state=42)
+	train_df, validation_df = train_test_split(df, test_size=0.3, random_state=80)
 	train_df.to_csv('Training_knight.csv', index=False)
 	validation_df.to_csv('Validation_knight.csv', index=False)
 
