@@ -38,6 +38,7 @@ y_pred_val = voting_clf.predict(X_val_split)
 f1 = f1_score(y_val_split, y_pred_val, average='macro')
 print(f'F1 Score: {f1}')
 
+
 # Comprobar si el F1 Score es al menos 0.94
 if f1 < 0.94:
     print('El F1 Score en el conjunto de validación es menor que 0.94, necesitas mejorar el modelo.')
