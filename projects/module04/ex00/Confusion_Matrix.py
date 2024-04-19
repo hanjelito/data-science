@@ -103,14 +103,12 @@ def confusion_matrix_report2(path_predictions, path_truth):
 	sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='viridis', ax=ax, xticklabels=['0', '1'], yticklabels=['0', '1'])
 	plt.tight_layout()
 	plt.savefig('confusion_matrix_report.png')
- 
-
+	plt.close()
  
 def main():
-	path_predictions = '/vagrant/store/modulo04/predictions.txt'
-	path_truth = '/vagrant/store/modulo04/truth.txt'
+	path_predictions = 'predictions.txt'
+	path_truth = 'truth.txt'
 	confusion_matrix_report2(path_predictions, path_truth)
 
 if __name__ == '__main__':
 	main()
-	

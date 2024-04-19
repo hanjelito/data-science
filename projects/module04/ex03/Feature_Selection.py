@@ -34,7 +34,7 @@ def remove_high_vif_features(df):
 	print(calculate_variable_inflation_factors(df_const).to_string())
 
 def main():
-	df = pd.read_csv('/vagrant/store/modulo04/Train_knight.csv')
+	df = pd.read_csv('Train_knight.csv')
 	df = df.drop('knight', axis=1)
 	remove_high_vif_features(df)
 

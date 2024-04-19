@@ -7,8 +7,8 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 
 # Cargar los datos
-train_data = pd.read_csv('/vagrant/store/modulo04/Train_knight.csv')
-test_data = pd.read_csv('/vagrant/store/modulo04/Test_knight.csv')
+train_data = pd.read_csv('Train_knight.csv')
+test_data = pd.read_csv('Test_knight.csv')
 
 # Preparar los datos de entrenamiento y prueba
 X_train = train_data.drop('knight', axis=1)

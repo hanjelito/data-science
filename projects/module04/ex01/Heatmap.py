@@ -25,7 +25,7 @@ def heatmap(df: pd.DataFrame):
     plt.close()
 
 def main():
-    train_knight = '/vagrant/store/modulo04/Train_knight.csv'
+    train_knight = 'Train_knight.csv'
     df = load_file(train_knight)
     heatmap(df)
 

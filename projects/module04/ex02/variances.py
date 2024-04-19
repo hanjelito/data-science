@@ -44,7 +44,7 @@ def variances(pca: PCA):
     plt.close()
 
 def main():
-	df = load('/vagrant/store/modulo04/Train_knight.csv')
+	df = load('Train_knight.csv')
     
 	pca = process_pca(df)
 	variances(pca)

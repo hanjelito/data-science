@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 # K-Nearest Neighbors
 
-train_data = pd.read_csv('/vagrant/store/modulo04/Train_knight.csv')
-test_data = pd.read_csv('/vagrant/store/modulo04/Test_knight.csv')
+train_data = pd.read_csv('Train_knight.csv')
+test_data = pd.read_csv('Test_knight.csv')
 
 X_train = train_data.drop('knight', axis=1)
 y_train = train_data['knight']
