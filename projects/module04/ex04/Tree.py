@@ -4,7 +4,7 @@ from sklearn.metrics import f1_score
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
 
-# Cargar los datos
+
 train_data = pd.read_csv('Train_knight.csv')
 test_data = pd.read_csv('Test_knight.csv')
 
@@ -32,10 +32,10 @@ if f1 < 0.9:
 fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(20, 10), dpi=300)
 tree.plot_tree(clf, feature_names=X_train.columns, class_names=['Jedi', 'Sith'], filled=True, ax=axes)
 
-# Guardar la figura
+
 plt.savefig('decision_tree.png')
 
-# Guardar las predicciones en un archivo
-with open('predictions_04.txt', 'w') as f:
+
+with open('Tree.txt', 'w') as f:
     for pred in predictions_test:
         f.write("%s\n" % pred)
