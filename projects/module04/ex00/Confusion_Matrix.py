@@ -74,7 +74,6 @@ def classification_report_manual(y_true, y_pred, target_names=None):
 	df.set_index('label', inplace=True)
 
 	accuracy = round(sum(t == p for t, p in zip(y_true, y_pred)) / len(y_true), 2)
-	print(accuracy)
 	df.loc['accuracy'] =  '', '', accuracy, total_support
 
 	pd.options.display.float_format = '{:,.2f}'.format
@@ -109,8 +108,7 @@ def confusion_matrix_report2(path_predictions, path_truth):
 
  
 def main():
-	# path_predictions = '/vagrant/store/modulo04/predictions.txt'
-	path_predictions = 'predictions_04.txt'
+	path_predictions = '/vagrant/store/modulo04/predictions.txt'
 	path_truth = '/vagrant/store/modulo04/truth.txt'
 	confusion_matrix_report2(path_predictions, path_truth)
 
