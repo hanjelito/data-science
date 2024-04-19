@@ -45,7 +45,6 @@ def classification_report_manual(y_true, y_pred, target_names=None):
 	y_true = y_true.tolist() if isinstance(y_true, pd.Series) else y_true
 	y_pred = y_pred.tolist() if isinstance(y_pred, pd.Series) else y_pred
 
-	# Resto del código...
 	labels = sorted(set(y_true))
 	if target_names is None or len(target_names) != len(labels):
 		target_names = [str(label) for label in labels]
